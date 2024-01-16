@@ -265,7 +265,7 @@ void uartTask()
         case 'p':
         case 'P':
             potentiometerReading = potentiometer.read();
-            sprintf ( str, "Potentiometer: %.2f\r\n", potentiometerReading );
+            sprintf ( str, "Pot reading: %.3f\r\n", potentiometerReading );
             stringLength = strlen(str);
             uartUsb.write( str, stringLength );
             break;
