@@ -4,7 +4,7 @@
 #include "arm_book_lib.h"
 
 //=====[Defines]===============================================================
-
+/*
 #define NUMBER_OF_KEYS                           4
 #define BLINKING_TIME_GAS_ALARM               1000
 #define BLINKING_TIME_OVER_TEMP_ALARM          500
@@ -24,13 +24,13 @@ DigitalIn dButton(D7);
 DigitalOut alarmLed(LED1);
 DigitalOut incorrectCodeLed(LED3);
 DigitalOut systemBlockedLed(LED2);
-
+*/
 UnbufferedSerial uartUsb(USBTX, USBRX, 115200);
 
 AnalogIn potentiometer(A0);
 
 //=====[Declaration and initialization of public global variables]=============
-
+/*
 bool alarmState    = OFF;
 bool gasDetectorState      = OFF;
 bool overTempDetectorState = OFF;
@@ -43,36 +43,45 @@ int buttonBeingCompared    = 0;
 int codeSequence[NUMBER_OF_KEYS]   = { 1, 1, 0, 0 };
 int buttonsPressed[NUMBER_OF_KEYS] = { 0, 0, 0, 0 };
 int accumulatedTimeAlarm = 0;
+*/
 float potentiometerReading = 0.0;
+float startingAngle = 0.0;
+
 
 //=====[Declarations (prototypes) of public functions]=========================
-
+/*
 void inputsInit();
 void outputsInit();
 
 void alarmActivationUpdate();
 void alarmDeactivationUpdate();
-
+*/
 void uartTask();
+float potentiometerAngle(float potentiometerReading);
+void setStartingAngle();
+/*
 void availableCommands();
 bool areEqual();
-
+*/
 //=====[Main function, the program entry point after power on or reset]========
 
 int main()
 {
+    /*
     inputsInit();
     outputsInit();
+    */
+    setStartingAngle();
     while (true) {
-        alarmActivationUpdate();
-        alarmDeactivationUpdate();
+        //alarmActivationUpdate();
+        //alarmDeactivationUpdate();
         uartTask();
-        delay(TIME_INCREMENT_MS);
+       // delay(TIME_INCREMENT_MS);
     }
 }
 
 //=====[Implementations of public functions]===================================
-
+/*
 void inputsInit()
 {
     gasDetector.mode(PullDown);
@@ -156,7 +165,7 @@ void alarmDeactivationUpdate()
         systemBlockedLed = ON;
     }
 }
-
+*/
 void uartTask()
 {
     char receivedChar = '\0';
@@ -165,6 +174,7 @@ void uartTask()
     if( uartUsb.readable() ) {
         uartUsb.read( &receivedChar, 1 );
         switch (receivedChar) {
+        /*
         case '1':
             if ( alarmState ) {
                 uartUsb.write( "The alarm is activated\r\n", 24);
@@ -261,7 +271,7 @@ void uartTask()
 
             uartUsb.write( "\r\nNew code generated\r\n\r\n", 24 );
             break;
- 
+ */
         case 'p':
         case 'P':
             potentiometerReading = potentiometer.read();
@@ -270,14 +280,21 @@ void uartTask()
             uartUsb.write( str, stringLength );
             break;
 
-        default:
-            availableCommands();
+        case 'a':
+        case 'A':
+            potentiometerReading = potentiometer.read();
+            sprintf ( str, "Pot angle: %.3f\r\n", potentiometerAngle(potentiometerReading) );
+            stringLength = strlen(str);
+            uartUsb.write( str, stringLength );
             break;
+       // default:
+            //availableCommands();
+          //  break;
 
         }
     }
 }
-
+/*
 void availableCommands()
 {
     uartUsb.write( "Available commands:\r\n", 21 );
@@ -300,4 +317,12 @@ bool areEqual()
     }
 
     return true;
+}
+*/
+float potentiometerAngle(float potentiometerReading) {
+    return (potentiometerReading * 10 * 360 - startingAngle);
+}
+
+void setStartingAngle(){
+    startingAngle = potentiometer.read() * 10 * 360;
 }
